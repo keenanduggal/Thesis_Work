@@ -1,0 +1,19 @@
+This scripts in this directory are designed to be implemented only after specific other processes have been completed. 
+
+Overall Image Analysis Procedure Used:
+
+1) Cropped Pyrenoid (ROI) in each dataset image (chose one cell per picture grouping and set scale in nanometers based on magnification)
+
+2) Trained and segmented each image using Ilastik Machine Learning (must follow naming conventions that are specified on google drive!!!)
+
+3) ImageJ MasterScript: 
+
+# ImageJ Implementation Sequence: 
+    1) Processing_ThresholdedforSegmentedInput2.ijm
+    2) FinalCode.ijm variant: forNormalization.ijm 
+        Make sure that measurements are being saved to a .csv file and that the ROIManager is naming each selection 
+        the image name 
+    3) NormalizingIntensityMeasurments.ijm
+        Make sure that measurements are being saved to a text file 
+    
+# Run these programs only after all of the above have been completed
