@@ -1,0 +1,65 @@
+directory = getDirectory("Ilastik Segmentation");
+output = getDirectory("output");
+list = getFileList(directory); 
+
+for (h=0; h<list.length; h++) {
+	name = list[h];
+	open(directory + name);
+	setAutoThreshold("Default dark no-reset");
+	setThreshold(0, 1);
+	setOption("BlackBackground", true);
+	run("Convert to Mask");
+	setOption("BlackBackground", true);
+	run("Dilate");
+	run("Dilate");
+	run("Dilate");
+	run("Dilate");
+	run("Dilate");
+	run("Dilate");
+	run("Dilate");
+	run("Dilate");
+	run("Dilate");
+	run("Dilate");
+	run("Median...", "radius=20");
+	run("Erode");
+	run("Erode");
+	run("Erode");
+	run("Erode");
+	run("Erode");
+	run("Erode");
+	run("Erode");
+	run("Erode");
+	run("Erode");
+	run("Erode");
+	run("Erode");
+	run("Erode");
+	run("Erode");
+	run("Erode");
+	run("Erode");
+	run("Erode");
+	run("Erode");
+	run("Erode");
+	run("Erode");
+	run("Erode");
+	run("Dilate");
+	run("Dilate");
+	run("Dilate");
+	run("Dilate");
+	run("Dilate");
+	run("Dilate");
+	run("Dilate");
+	run("Dilate");
+	run("Dilate");
+	run("Dilate");
+	run("Dilate");
+	run("Dilate");
+	run("Dilate");
+	run("Dilate");
+	run("Dilate");
+	run("Fill Holes");
+	saveAs("tiff", output + name);
+}
+
+
+waitForUser("close all?");
+close("*");
