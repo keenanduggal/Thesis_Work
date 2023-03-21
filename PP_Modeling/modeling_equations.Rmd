@@ -1,0 +1,80 @@
+
+
+$$
+\underline{\large No \ Climate \ Effect \ Scenario}  \\
+\begin{aligned}
+dS/dt &= rr - \beta \times S \times I / N - mr \times S \\
+dI/dt &= \beta \times S \times I / N - (mr +  \phi  + \gamma) \times I \\ 
+dR/dt &= \gamma \times I - mr \times R \\
+\end{aligned}
+
+$$
+
+$$
+\underline{\large Climate \ Effect \ Scenarios}  \\
+\begin{aligned}
+dS/dt &= (rr +  \sigma_1 \times T) - (\beta + \sigma_2 \times T) \times S \times I / N - (mr + \sigma_3 \times T)  \times S \\
+dI/dt &= (\beta + \sigma_2 \times T) \times S \times I / N - [(mr +  \phi  + \sigma_3 \times T) + (\gamma + \sigma_4 \times T)] \times I \\
+dR/dt &= (\gamma + \sigma_4 \times T) \times I - (mr  + \sigma_3 \times T) \times R
+\end{aligned}
+
+$$
+
+
+
+
+$$
+When \ Year  \geq  Year_{Max} / \ 2, \ \ \sigma_2 = -1 \times \sigma_2; \ else\ \  \sigma_2 = 1 \times \sigma_2 \\ 
+
+$$
+
+
+
+$$
+\underline{\large Model \ Parameters}  \\
+\begin{aligned}
+\ S &= Number \ of \ Susceptible \ Plants \\
+\ I &= Number \ of \ Infected \ Plants \\
+\ R &= Number \ of \ Recovered \ Plants \\
+\ t &= Time \ in \ Growing \ Season \\
+\ T &= Years \ After \ Simulation \ Start \\ 
+\ rr &= Recruitment \ Rate \\
+\ mr &= Mortality \ Rate \\
+\beta &= Transmission \ Rate \\
+\phi &= Added \ Disease \ Mortality \\
+\gamma &= Recovery \ Rate
+\end{aligned}
+
+$$
+
+
+
+$$
+\underline{\large  Slope\ of \ Climate \ Effect \ On: }  \\
+\begin{aligned}
+\sigma_1 &:  Recruitment \ Rate  \\
+\sigma_2 &:  Transmission \ Rate\\
+\sigma_3 &:  Mortality \ Rate \\
+\sigma_4 &:  Recovery \ Rate \\
+\end{aligned}
+
+$$
+
+
+
+
+$$
+\begin{aligned}
+\beta &=  \\
+\sigma_1 &=   \\
+\sigma_2 &= \\
+\sigma_3 &=  \\
+\sigma_4 &=  \\
+\phi &=  \\
+\gamma &=
+\end{aligned}
+
+$$
+
+
+
