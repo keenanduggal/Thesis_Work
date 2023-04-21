@@ -10,9 +10,9 @@ tspan = [0, 1];
 ic = [87, 3, 10];
 beta = 65; 
 gamma = 10;
-recruit_rate = 30;
-mortality_rate = 0.1;
-disease_mortality_rate = 0.3;
+recruit_rate = 33;
+mortality_rate = 0.15;
+disease_mortality_rate = 0.15;
 
 
 dPdt =  @(t,D)[
@@ -52,6 +52,7 @@ recruit_rate = 33;
 mortality_rate = 0.15;
 disease_mortality = 0.15; 
 plant_survival_over_winter = 0.85;
+carrying_capacity = 300; 
 
 % Storage Vectors: 
 susceptible_stored = []; 
@@ -88,20 +89,20 @@ dP2dt =  @(t,D)[
 % Realistic Scenario: Increased Temperatures: slightly higher plant
 % mortality, increased infectivity (up to a point, then decreased), lower
 % fecundity, decreased recovery 
-if i >=  x/2 % Climate effect on transmission 
+if i >=  25 % Climate effect on transmission 
     beta_adjust =  -0.25 * (i-25); 
 else 
     beta_adjust =  0.25 * i;
 end 
 
 dP3dt =  @(t,D)[
-(recruit_rate + 0.1*i) - (beta + beta_adjust) * D(1) * (D(2)) / (D(1)+D(2)+D(3)) - (mortality_rate + 0.005*i) * D(1); % dS/dt
-(beta + beta_adjust) * D(1) * (D(2)) / (D(1)+D(2)+D(3)) - ((mortality_rate +disease_mortality + 0.005*i)+(gamma - 0.005 * i))*D(2); % dI/dt
-(gamma - 0.005 * i) * D(2) - (mortality_rate + 0.005*i) * D(3)]; % dR/dt
+(recruit_rate - 0.025*i) - (beta + beta_adjust) * D(1) * (D(2)) / (D(1)+D(2)+D(3)) - (mortality_rate + (i ./ (i + 2 * x))) * D(1); % dS/dt
+(beta + beta_adjust) * D(1) * (D(2)) / (D(1)+D(2)+D(3)) - ((mortality_rate +disease_mortality + (i ./ (i + 2 * x)))+(gamma - (i ./ (i + 2 * x))))*D(2); % dI/dt
+(gamma - (i ./ (i + 2 * x))) * D(2) - (mortality_rate + (i ./ (i + 2 * x))) * D(3)]; % dR/dt
 
 
 % Select which set of differential equations to use 
-[t,plants] = ode15s(dPdt, tspan, ic);
+[t,plants] = ode15s(dP3dt, tspan, ic);
 
 % Adds growing season data + fall, winter, spring linear declines into storage arrays: 
 length_fws = size(plants(:, 1), 1) * 3; 
@@ -121,15 +122,22 @@ recovered = plant_survival_over_winter * ((3/8) * plants(end,3));
 
 end
 
+y = infected_stored(:,1) + susceptible_stored(:,1) + recovered_stored(:,1); 
+idx = y>carrying_capacity;
+y(idx) = 300;
+
 % Visualizing Results: 
 f2 = figure;
 figure(f2);
-plot(transpose(1:size(infected_stored, 1)) / (size(infected_stored, 1) / x), infected_stored(:,1) + susceptible_stored(:,1) + recovered_stored(:,1), 'k', 'LineWidth',3, 'DisplayName', 'All Plants')
+plot(transpose(1:size(infected_stored, 1)) / (size(infected_stored, 1) / x), y, 'k', 'LineWidth',3, 'DisplayName', 'All Plants')
 xlabel('Time (years)', 'FontSize',14)
 ylabel('# Plants', 'FontSize',14)
 yl = ylim; 
 ylim([0, yl(2)]);
 title('Total # Plants', 'FontSize',24);
+
+
+% plot(transpose(1:size(infected_stored, 1)) / (size(infected_stored, 1) / x),infected_stored(:,1))
 
 %{
 f1 = figure;
@@ -350,7 +358,6 @@ for k = 1:n
 
 % Fixed Starting Population Parameters 
 
-%transpose(0.3:0.18:2) 
 Population_size_multiplier = transpose(0.3:0.18:2);
 susceptible = 87 * Population_size_multiplier(r);
 infected = 3 * Population_size_multiplier(r); 
@@ -358,9 +365,9 @@ recovered = 10 * Population_size_multiplier(r);
 tspan = [0, 1]; % Integrates over one season
 
 % Stable
-beta = 65 * Population_size_multiplier(r); 
-gamma = 10 * Population_size_multiplier(r);
-recruit_rate = 33 * Population_size_multiplier(r);
+beta = 65; % * Population_size_multiplier(r); 
+gamma = 10; % * Population_size_multiplier(r);
+recruit_rate = 33; % * Population_size_multiplier(r);
 mortality_rate = 0.15;
 disease_mortality = 0.15; 
 plant_survival_over_winter = 0.85;
@@ -415,19 +422,19 @@ dPdt_noclimate =  @(t,D)[
 recruit_adjust = 0.01;
 
 
-% When testing, swap 0.1 with transpose(0.015:.15:1.5)
+% When testing, swap 0.1 with transpose(0.0086:.086:0.86)
 if i >=  25 % Climate effect on transmission 
-    beta_adjust =  -0.1 * (i-25); 
+    beta_adjust =  0.1 * (i-25); 
 else 
     beta_adjust = 0.1 * i;
 end
-beta_adjust_raw = transpose(0.015:.15:1.5); % For graphing purposes
+beta_adjust_raw = transpose(0.0086:.086:0.86); % For graphing purposes
 
 
 % mortality_adjust = transpose(0.0005:0.0005:0.005); % Use when testing 
 mortality_adjust = 0.001;
 
-%gamma_adjust = transpose(0.0075:0.0075:0.075);
+% gamma_adjust = transpose(0.0075:0.0075:0.075);
 gamma_adjust = 0.01;
 
 
@@ -466,8 +473,7 @@ else
     colonization = 5; 
 end
 
-
-% colonization = 1.5:1.5:15; 
+%colonization = 1.5:1.5:15; 
 
 
 % Update Population Numbers for Start of next season 
@@ -513,12 +519,48 @@ for z = 1:r
 plot(1:length(average_data_storage(:,z)),average_data_storage(:,z), 'Color', cMap(z,:), 'LineWidth',2, 'DisplayName', labels(z))
 end 
 grid on
-xlabel('Time')
-ylabel('Population Size')
+xlabel('Time', 'FontSize', 18)
+ylabel('Population Size', 'FontSize', 18)
+ax=gca;
+ax.FontSize = 20;
 title("Proportional Populations", 'FontSize',24);
 subtitle("With Predicted Climate Effects", 'FontSize',16)
 legend(labels);
  
 
+figure
+hold on
+for z = 1:r
+plot(1:length(infected_data_storage(:,z)),infected_data_storage(:,z), 'Color', cMap(z,:), 'LineWidth',2, 'DisplayName', labels(z))
+end 
+grid on
+xlabel('Time', 'FontSize', 18)
+ylabel('Diseased Population Size', 'FontSize', 18);
+ax=gca;
+ax.FontSize = 20;
+title("Varying Colonization", 'FontSize',24);
+% subtitle("With Predicted Climate Effects", 'FontSize',16)
+legend(labels);
 
+
+%% Temperature / Climate over Time: 
+
+x = transpose(0:1:100);
+y = [transpose(0:1:100), transpose(0:1.1:110), transpose(0:1.2:120), transpose(0:1.3:130), transpose(0:1.4:140), transpose(0:1.5:150), transpose(0:1.6:160), transpose(0:1.75:175), transpose(0:1.85:185), transpose(0:2:200)];
+cMap = interp1([0;1],[0 1 0; 1 0 0],linspace(0,1,10));
+labels = string(1:10);
+
+figure
+hold on
+for z = 1:10
+plot(x,y(:,z), 'Color', cMap(z,:), 'LineWidth',2, 'DisplayName', labels(z))
+end 
+grid on
+xlabel('Time (Years)', 'FontSize', 18)
+ylabel('"Climate"', 'FontSize', 18);
+ax=gca;
+ax.FontSize = 20;
+set(gca,'ytick',[])
+title("Climate Change Over Time", 'FontSize',24);
+legend(labels);
 
