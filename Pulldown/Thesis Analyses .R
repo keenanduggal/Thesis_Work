@@ -14,9 +14,354 @@ library(ggpubr)
 
 
 ########### Image Analysis: 1
+
+#### New Approach: 
+Cell_Line_1 <- read_csv("~/Desktop/Image_Analysis_Redo/one.csv")
+Cell_Line_1$adivp <- Cell_Line_1$Area / Cell_Line_1$Perim.
+Cell_Line_D <- read_csv("~/Desktop/Image_Analysis_Redo/d.csv")
+Cell_Line_D$adivp <- Cell_Line_D$Area / Cell_Line_D$Perim.
+Cell_Line_F <- read_csv("~/Desktop/Image_Analysis_Redo/f.csv")
+Cell_Line_F$adivp <- Cell_Line_F$Area / Cell_Line_F$Perim.
+Cell_Line_G <- read_csv("~/Desktop/Image_Analysis_Redo/g.csv")
+Cell_Line_G$adivp <- Cell_Line_G$Area / Cell_Line_G$Perim.
+Cell_Line_H <- read_csv("~/Desktop/Image_Analysis_Redo/h.csv")
+Cell_Line_H$adivp <- Cell_Line_H$Area / Cell_Line_H$Perim.
+Cell_Line_S <- read_csv("~/Desktop/Image_Analysis_Redo/s.csv")
+Cell_Line_S$adivp <- Cell_Line_S$Area / Cell_Line_S$Perim.
+Cell_Line_T <- read_csv("~/Desktop/Image_Analysis_Redo/t.csv")
+Cell_Line_T$adivp <- Cell_Line_T$Area / Cell_Line_T$Perim.
+Cell_Line_U <- read_csv("~/Desktop/Image_Analysis_Redo/u.csv")
+Cell_Line_U$adivp <- Cell_Line_U$Area / Cell_Line_U$Perim.
+
+
+# Area: 
+t.test(Cell_Line_1$Area, Cell_Line_D$Area, alternative = "two.sided")
+t.test(Cell_Line_1$Area, Cell_Line_F$Area, alternative = "two.sided") ## Significant 
+t.test(Cell_Line_1$Area, Cell_Line_G$Area, alternative = "two.sided") ### Significant 
+t.test(Cell_Line_1$Area, Cell_Line_H$Area, alternative = "two.sided")
+t.test(Cell_Line_1$Area, Cell_Line_S$Area, alternative = "two.sided")
+t.test(Cell_Line_1$Area, Cell_Line_T$Area, alternative = "two.sided") ## Significant 
+t.test(Cell_Line_1$Area, Cell_Line_U$Area, alternative = "two.sided") # Significant 
+
+machine_area_df <- data.frame('C_1' = mean(Cell_Line_1$Area), 
+                      'D' = mean(Cell_Line_D$Area), 
+                      'F' = mean(Cell_Line_F$Area), 
+                      'G' = mean(Cell_Line_G$Area), 
+                      'H' = mean(Cell_Line_H$Area), 
+                      'S' = mean(Cell_Line_S$Area), 
+                      'T' = mean(Cell_Line_T$Area),
+                      'U' = mean(Cell_Line_U$Area))
+
+combined <- gather(machine_area_df, key = "Cell_Line", value = "M_L", C_1, D, F, G, H, S, T, U)
+combined$Manual <- manual_averages$Area
+stacked_area <- cbind(combined[1], stack(combined[2:3])) %>% arrange(Cell_Line)
+
+
+a <- ggplot(stacked_area, aes(x = Cell_Line, y = values, fill = ind)) +
+    geom_bar(stat = "identity", position = position_dodge(width=0.75)) + 
+    scale_fill_manual(values=c("#663339", "#CC996680")) + 
+    labs(y = "Area (nm^2)", x = " ", title = "Average Tubule Area")  + 
+    theme(axis.text.y=element_text(size=12),
+          axis.text.x=element_text(size=15, face = "bold"),
+          axis.title=element_text(size=15), 
+          plot.title = element_text(size = 20, face="bold"), 
+          legend.title=element_blank(), 
+          legend.text = element_text(size=12),
+          legend.position= 'top', 
+          legend.justification='left',
+          legend.direction='horizontal', 
+          legend.margin=margin(t=2)) + 
+    geom_signif(comparisons=list(c("C_1", "F")), annotations="**",
+                y_position = 18000, tip_length = 0, size = 0.8, vjust=0.4) + 
+    geom_signif(comparisons=list(c("C_1", "U")), annotations="*",
+                y_position = 24000, tip_length = 0, size = 0.8, vjust=0.4)  +
+    geom_signif(comparisons=list(c("C_1", "G")), annotations="***",
+                y_position = 20000, tip_length = 0, size = 0.8, vjust=0.4)+ 
+    geom_signif(comparisons=list(c("C_1", "T")), annotations="**",
+                y_position = 22000, tip_length = 0, size = 0.8, vjust=0.4)
+   
+  
+
+
+
+# Percent Area: 
+percent_area <- read_excel("~/Desktop/Image_Analysis_Redo/percent_area.xlsx")
+percent_area$Cell_line <- factor(percent_area$Cell_line)
+percent_area %>% group_by(Cell_line) %>% summarize(mean = mean(percent_area) * 100)
+t.test(percent_area %>% filter(Cell_line == 'cell_line_1') %>% pull(percent_area), percent_area %>% filter(Cell_line == 'cell_line_d') %>% pull(percent_area), alternative = "two.sided")
+t.test(percent_area %>% filter(Cell_line == 'cell_line_1') %>% pull(percent_area), percent_area %>% filter(Cell_line == 'cell_line_f') %>% pull(percent_area), alternative = "two.sided") # Significant 
+t.test(percent_area %>% filter(Cell_line == 'cell_line_1') %>% pull(percent_area), percent_area %>% filter(Cell_line == 'cell_line_g') %>% pull(percent_area), alternative = "two.sided") 
+t.test(percent_area %>% filter(Cell_line == 'cell_line_1') %>% pull(percent_area), percent_area %>% filter(Cell_line == 'cell_line_h') %>% pull(percent_area), alternative = "two.sided") 
+t.test(percent_area %>% filter(Cell_line == 'cell_line_1') %>% pull(percent_area), percent_area %>% filter(Cell_line == 'cell_line_s') %>% pull(percent_area), alternative = "two.sided") 
+t.test(percent_area %>% filter(Cell_line == 'cell_line_1') %>% pull(percent_area), percent_area %>% filter(Cell_line == 'cell_line_t') %>% pull(percent_area), alternative = "two.sided") 
+t.test(percent_area %>% filter(Cell_line == 'cell_line_1') %>% pull(percent_area), percent_area %>% filter(Cell_line == 'cell_line_u') %>% pull(percent_area), alternative = "two.sided") # Significant 
+
+data <- percent_area %>% group_by(Cell_line) %>% summarize(M_L = mean(percent_area) * 100)
+data$Manual <- manual_averages$`% Area`
+data$ID <- c('C_1', 'D', 'F', 'G', 'H', 'S', 'T', 'U')
+stacked_pa <- cbind(data[4], stack(data[2:3])) %>% arrange(ID)
+
+b <- ggplot(stacked_pa, aes(x = ID, y = values, fill = ind)) +
+    geom_bar(stat = "identity", position = position_dodge(width=0.75)) + 
+    scale_fill_manual(values=c("#663339", "#CC996680")) + 
+    labs(y = "Tubule % of Pyrenoid Area", x = " ", title = "Total Tubule/Pyrenoid Area")  + 
+    theme(axis.text.y=element_text(size=12),
+          axis.text.x=element_text(size=15, face = "bold"),
+          axis.title=element_text(size=15), 
+          plot.title = element_text(size = 20, face="bold"), 
+          legend.title=element_blank(), 
+          legend.text = element_text(size=12),
+          legend.position= 'top', 
+          legend.justification='left',
+          legend.direction='horizontal', 
+          legend.margin=margin(t=2)) + 
+    geom_signif(comparisons=list(c("C_1", "F")), annotations="*",
+                y_position = 22, tip_length = 0, size = 0.8, vjust=0.4) + 
+    geom_signif(comparisons=list(c("C_1", "U")), annotations="*",
+                y_position = 26, tip_length = 0, size = 0.8, vjust=0.4) 
+  
+
+
+# Perimeter: 
+t.test(Cell_Line_1$Perim., Cell_Line_D$Perim., alternative = "two.sided")
+t.test(Cell_Line_1$Perim., Cell_Line_F$Perim., alternative = "two.sided") # Significant 
+t.test(Cell_Line_1$Perim., Cell_Line_G$Perim., alternative = "two.sided") ### Significant 
+t.test(Cell_Line_1$Perim., Cell_Line_H$Perim., alternative = "two.sided")
+t.test(Cell_Line_1$Perim., Cell_Line_S$Perim., alternative = "two.sided")
+t.test(Cell_Line_1$Perim., Cell_Line_T$Perim., alternative = "two.sided") ## Significant 
+t.test(Cell_Line_1$Perim., Cell_Line_U$Perim., alternative = "two.sided") # Significant 
+
+machine_perim_df <- data.frame('C_1' = mean(Cell_Line_1$Perim.), 
+                              'D' = mean(Cell_Line_D$Perim.), 
+                              'F' = mean(Cell_Line_F$Perim.), 
+                              'G' = mean(Cell_Line_G$Perim.), 
+                              'H' = mean(Cell_Line_H$Perim.), 
+                              'S' = mean(Cell_Line_S$Perim.), 
+                              'T' = mean(Cell_Line_T$Perim.),
+                              'U' = mean(Cell_Line_U$Perim.))
+
+combined <- gather(machine_perim_df, key = "Cell_Line", value = "M_L", C_1, D, F, G, H, S, T, U)
+combined$Manual <- manual_averages$Perim.
+stacked_perim <- cbind(combined[1], stack(combined[2:3])) %>% arrange(Cell_Line)
+
+
+c <- ggplot(stacked_perim, aes(x = Cell_Line, y = values, fill = ind)) +
+    geom_bar(stat = "identity", position = position_dodge(width=0.75)) + 
+    scale_fill_manual(values=c("#663339", "#CC996680")) + 
+    labs(y = "Perim (nm)", x = " ", title = "Average Tubule Perimeter")  + 
+    theme(axis.text.y=element_text(size=12),
+          axis.text.x=element_text(size=15, face = "bold"),
+          axis.title=element_text(size=15), 
+          plot.title = element_text(size = 20, face="bold"), 
+          legend.title=element_blank(), 
+          legend.text = element_text(size=12),
+          legend.position= 'top', 
+          legend.justification='left',
+          legend.direction='horizontal', 
+          legend.margin=margin(t=2)) + 
+    geom_signif(comparisons=list(c("C_1", "F")), annotations="*",
+                y_position = 400, tip_length = 0, size = 0.8, vjust=0.4) + 
+    geom_signif(comparisons=list(c("C_1", "G")), annotations="***",
+                y_position = 450, tip_length = 0, size = 0.8, vjust=0.4)  +
+    geom_signif(comparisons=list(c("C_1", "T")), annotations="**",
+                y_position = 500, tip_length = 0, size = 0.8, vjust=0.4)+ 
+    geom_signif(comparisons=list(c("C_1", "U")), annotations="*",
+                y_position = 555, tip_length = 0, size = 0.8, vjust=0.4)
+
+
+
+# Area:Perimeter Ratio: 
+t.test(Cell_Line_1$adivp, Cell_Line_D$adivp, alternative = "two.sided") ### Significant
+t.test(Cell_Line_1$adivp, Cell_Line_F$adivp, alternative = "two.sided")
+t.test(Cell_Line_1$adivp, Cell_Line_G$adivp, alternative = "two.sided") ### Significant 
+t.test(Cell_Line_1$adivp, Cell_Line_H$adivp, alternative = "two.sided") ### Significant
+t.test(Cell_Line_1$adivp, Cell_Line_S$adivp, alternative = "two.sided") ### Significant
+t.test(Cell_Line_1$adivp, Cell_Line_T$adivp, alternative = "two.sided") ### Significant 
+t.test(Cell_Line_1$adivp, Cell_Line_U$adivp, alternative = "two.sided") 
+
+df <- data.frame('C_1' = mean(Cell_Line_1$adivp), 
+                              'D' = mean(Cell_Line_D$adivp), 
+                              'F' = mean(Cell_Line_F$adivp), 
+                              'G' = mean(Cell_Line_G$adivp), 
+                              'H' = mean(Cell_Line_H$adivp), 
+                              'S' = mean(Cell_Line_S$adivp), 
+                              'T' = mean(Cell_Line_T$adivp),
+                              'U' = mean(Cell_Line_U$adivp))
+
+df_new <- gather(df, key = "Cell_Line", value = "M_L", C_1, D, F, G, H, S, T, U)
+
+d <- ggplot(df_new, aes(x = Cell_Line, y = M_L)) +
+    geom_bar(stat = "identity", position = position_dodge(width=0.75), fill = "#663339", color = "black") + 
+    labs(y = "Area/Perim (nm)", x = " ", title = "Average Tubule Area:Perimeter")  + 
+    theme(axis.text.y=element_text(size=12),
+          axis.text.x=element_text(size=15, face = "bold"),
+          axis.title=element_text(size=15), 
+          plot.title = element_text(size = 20, face="bold"), 
+          legend.title=element_blank(), 
+          legend.text = element_text(size=12),
+          legend.position= 'top', 
+          legend.justification='left',
+          legend.direction='horizontal', 
+          legend.margin=margin(t=2)) + 
+    geom_signif(comparisons=list(c("C_1", "D")), annotations="***",
+                y_position = 18, tip_length = 0, size = 0.8, vjust=0.4) + 
+    geom_signif(comparisons=list(c("C_1", "G")), annotations="***",
+                y_position = 20, tip_length = 0, size = 0.8, vjust=0.4)  +
+    geom_signif(comparisons=list(c("C_1", "H")), annotations="***",
+                y_position = 22, tip_length = 0, size = 0.8, vjust=0.4)+ 
+    geom_signif(comparisons=list(c("C_1", "S")), annotations="***",
+                y_position = 24, tip_length = 0, size = 0.8, vjust=0.4) + 
+    geom_signif(comparisons=list(c("C_1", "T")), annotations="***",
+                y_position = 26, tip_length = 0, size = 0.8, vjust=0.4)
+
+
+dev.new()
+ggarrange(a, b, c, d, ncol = 2, nrow = 2, labels = c("A", "B", "C", "D"))
+
+
+####### Shape: 
+
+# Roundness
+t.test(Cell_Line_1$Round, Cell_Line_D$Round, alternative = "two.sided") 
+t.test(Cell_Line_1$Round, Cell_Line_F$Round, alternative = "two.sided")
+t.test(Cell_Line_1$Round, Cell_Line_G$Round, alternative = "two.sided") 
+t.test(Cell_Line_1$Round, Cell_Line_H$Round, alternative = "two.sided") 
+t.test(Cell_Line_1$Round, Cell_Line_S$Round, alternative = "two.sided") 
+t.test(Cell_Line_1$Round, Cell_Line_T$Round, alternative = "two.sided") 
+t.test(Cell_Line_1$Round, Cell_Line_U$Round, alternative = "two.sided") 
+
+
+ml_round <- data.frame('C_1' = mean(Cell_Line_1$Round), 
+                               'D' = mean(Cell_Line_D$Round), 
+                               'F' = mean(Cell_Line_F$Round), 
+                               'G' = mean(Cell_Line_G$Round), 
+                               'H' = mean(Cell_Line_H$Round), 
+                               'S' = mean(Cell_Line_S$Round), 
+                               'T' = mean(Cell_Line_T$Round),
+                               'U' = mean(Cell_Line_U$Round))
+
+combined <- gather(ml_round, key = "Cell_Line", value = "M_L", C_1, D, F, G, H, S, T, U)
+combined$Manual <- manual_averages$Round
+stacked_round <- cbind(combined[1], stack(combined[2:3])) %>% arrange(Cell_Line)
+
+
+a <- ggplot(stacked_round, aes(x = Cell_Line, y = values, fill = ind)) +
+    geom_bar(stat = "identity", position = position_dodge(width=0.75)) + 
+    scale_fill_manual(values=c("#663339", "#CC996680")) + 
+    labs(y = "Roundness (0-1)", x = " ", title = "Average Tubule Roundness")  + 
+    theme(axis.text.y=element_text(size=10),
+          axis.text.x=element_text(size=12, face = "bold"),
+          axis.title=element_text(size=12), 
+          plot.title = element_text(size = 15, face="bold"), 
+          legend.title=element_blank(), 
+          legend.text = element_text(size=12),
+          legend.position= 'top', 
+          legend.justification='left',
+          legend.direction='horizontal', 
+          legend.margin=margin(t=2)) 
+
+
+
+# Solidity
+t.test(Cell_Line_1$Solidity, Cell_Line_D$Solidity, alternative = "two.sided") 
+t.test(Cell_Line_1$Solidity, Cell_Line_F$Solidity, alternative = "two.sided")
+t.test(Cell_Line_1$Solidity, Cell_Line_G$Solidity, alternative = "two.sided") 
+t.test(Cell_Line_1$Solidity, Cell_Line_H$Solidity, alternative = "two.sided") 
+t.test(Cell_Line_1$Solidity, Cell_Line_S$Solidity, alternative = "two.sided") ## Significant
+t.test(Cell_Line_1$Solidity, Cell_Line_T$Solidity, alternative = "two.sided") 
+t.test(Cell_Line_1$Solidity, Cell_Line_U$Solidity, alternative = "two.sided") # Significant
+
+
+ml_solid <- data.frame('C_1' = mean(Cell_Line_1$Solidity), 
+                       'D' = mean(Cell_Line_D$Solidity), 
+                       'F' = mean(Cell_Line_F$Solidity), 
+                       'G' = mean(Cell_Line_G$Solidity), 
+                       'H' = mean(Cell_Line_H$Solidity), 
+                       'S' = mean(Cell_Line_S$Solidity), 
+                       'T' = mean(Cell_Line_T$Solidity),
+                       'U' = mean(Cell_Line_U$Solidity))
+
+combined <- gather(ml_solid, key = "Cell_Line", value = "M_L", C_1, D, F, G, H, S, T, U)
+combined$Manual <- manual_averages$Solidity
+stacked_solid <- cbind(combined[1], stack(combined[2:3])) %>% arrange(Cell_Line)
+
+
+b <- ggplot(stacked_solid, aes(x = Cell_Line, y = values, fill = ind)) +
+    geom_bar(stat = "identity", position = position_dodge(width=0.75)) + 
+    scale_fill_manual(values=c("#663339", "#CC996680")) + 
+    labs(y = "Solidity (0-1)", x = " ", title = "Average Tubule Solidity")  + 
+    theme(axis.text.y=element_text(size=10),
+          axis.text.x=element_text(size=12, face = "bold"),
+          axis.title=element_text(size=12), 
+          plot.title = element_text(size = 15, face="bold"), 
+          legend.title=element_blank(), 
+          legend.text = element_text(size=12),
+          legend.position= 'top', 
+          legend.justification='left',
+          legend.direction='horizontal', 
+          legend.margin=margin(t=2)) + 
+    geom_signif(comparisons=list(c("C_1", "S")), annotations="**",
+                y_position = 0.95, tip_length = 0, size = 0.8, vjust=0.4) + 
+    geom_signif(comparisons=list(c("C_1", "U")), annotations="*",
+                y_position = 1, tip_length = 0, size = 0.8, vjust=0.4)
+
+
+# Circularity
+t.test(Cell_Line_1$Circ., Cell_Line_D$Circ., alternative = "two.sided") 
+t.test(Cell_Line_1$Circ., Cell_Line_F$Circ., alternative = "two.sided") # Significant
+t.test(Cell_Line_1$Circ., Cell_Line_G$Circ., alternative = "two.sided") 
+t.test(Cell_Line_1$Circ., Cell_Line_H$Circ., alternative = "two.sided") 
+t.test(Cell_Line_1$Circ., Cell_Line_S$Circ., alternative = "two.sided") ## Significant
+t.test(Cell_Line_1$Circ., Cell_Line_T$Circ., alternative = "two.sided") 
+t.test(Cell_Line_1$Circ., Cell_Line_U$Circ., alternative = "two.sided") ## Significant
+
+
+ml_circ <- data.frame('C_1' = mean(Cell_Line_1$Circ.), 
+                       'D' = mean(Cell_Line_D$Circ.), 
+                       'F' = mean(Cell_Line_F$Circ.), 
+                       'G' = mean(Cell_Line_G$Circ.), 
+                       'H' = mean(Cell_Line_H$Circ.), 
+                       'S' = mean(Cell_Line_S$Circ.), 
+                       'T' = mean(Cell_Line_T$Circ.),
+                       'U' = mean(Cell_Line_U$Circ.))
+
+combined <- gather(ml_circ, key = "Cell_Line", value = "M_L", C_1, D, F, G, H, S, T, U)
+combined$Manual <- manual_averages$Circ.
+stacked_circ <- cbind(combined[1], stack(combined[2:3])) %>% arrange(Cell_Line)
+
+
+c <- ggplot(stacked_circ, aes(x = Cell_Line, y = values, fill = ind)) +
+    geom_bar(stat = "identity", position = position_dodge(width=0.75)) + 
+    scale_fill_manual(values=c("#663339", "#CC996680")) + 
+    labs(y = "Circularity (0-1)", x = " ", title = "Average Tubule Circularity")  + 
+    theme(axis.text.y=element_text(size=10),
+          axis.text.x=element_text(size=12, face = "bold"),
+          axis.title=element_text(size=12), 
+          plot.title = element_text(size = 15, face="bold"), 
+          legend.title=element_blank(), 
+          legend.text = element_text(size=12),
+          legend.position= 'top', 
+          legend.justification='left',
+          legend.direction='horizontal', 
+          legend.margin=margin(t=2)) + 
+    geom_signif(comparisons=list(c("C_1", "F")), annotations="*",
+                y_position = 0.76, tip_length = 0, size = 0.8, vjust=0.4) + 
+    geom_signif(comparisons=list(c("C_1", "S")), annotations="**",
+                y_position = 0.81, tip_length = 0, size = 0.8, vjust=0.4) + 
+    geom_signif(comparisons=list(c("C_1", "U")), annotations="**",
+                y_position = 0.86, tip_length = 0, size = 0.8, vjust=0.4)
+
+
+dev.new()
+ggarrange(a, b, c, ncol = 3, nrow = 1, labels = c("A", "B", "C"))
+
+
+
+### Old Approach 
+
+# Original Data Load: (summary) 
 machine_learning <- read_excel("~/Desktop/ML_Averages.xlsx")
 manual_averages <- read_excel("~/Desktop/Manual_Averages.xlsx")
-
 
 # Size: 
 ## Area: 
@@ -106,25 +451,34 @@ ggarrange(a, b, c, ncol = 3, nrow = 1, labels = c("A", "B", "C"))
 ## Mean: 
 data <- data.frame(names = machine_learning$`Cell Line`, machine_learning = machine_learning$Mean)
 a <- ggplot(data, aes(x = names, y = machine_learning)) +
-    geom_bar(stat = "identity", fill = "#CC9966", position = position_dodge(width=0.5)) + 
-    labs(y = "Mean Normalized Pixel Intensity", x = " ", title = "Mean Tubule Fullness")  + 
-    theme(axis.text.x = element_text(angle = 60, vjust = 0.6))
+    geom_bar(stat = "identity", fill = "#663339", position = position_dodge(width=0.5)) + 
+    labs(y = "Mean Normalized Pixel Intensity", x = " ", title = "Mean Tubule Pixel Intensity")  + 
+    theme(axis.text=element_text(size=10),
+          axis.title=element_text(size=12), 
+          plot.title = element_text(size = 15, face="bold"), 
+          axis.text.x = element_text(angle = 60, vjust = 0.6))
 
 ## Min: 
 data <- data.frame(names = machine_learning$`Cell Line`, machine_learning = machine_learning$Minimum)
 
 b <- ggplot(data, aes(x = names, y = machine_learning)) +
-    geom_bar(stat = "identity", fill = "#CC9966", position = position_dodge(width=0.5)) + 
-    labs(y = "Min Normalized Pixel Intensity", x = " ", title = "Minimum Tubule Fullness")  + 
-    theme(axis.text.x = element_text(angle = 60, vjust = 0.6))
+    geom_bar(stat = "identity", fill = "#663339", position = position_dodge(width=0.5)) + 
+    labs(y = "Min Normalized Pixel Intensity", x = " ", title = "Minimum Tubule Pixel Intensity")  + 
+    theme(axis.text=element_text(size=10),
+          axis.title=element_text(size=12), 
+          plot.title = element_text(size = 15, face="bold"), 
+          axis.text.x = element_text(angle = 60, vjust = 0.6))
 
 ## Max: 
 data <- data.frame(names = machine_learning$`Cell Line`, machine_learning = machine_learning$Max)
 
 c <- ggplot(data, aes(x = names, y = machine_learning)) +
-    geom_bar(stat = "identity",fill = "#CC9966", position = position_dodge(width=0.5)) + 
-    labs(y = "Max Normalized Pixel Intensity", x = " ", title = "Maximum Tubule Fullness")  + 
-    theme(axis.text.x = element_text(angle = 60, vjust = 0.6))
+    geom_bar(stat = "identity",fill = "#663339", position = position_dodge(width=0.5)) + 
+    labs(y = "Max Normalized Pixel Intensity", x = " ", title = "Maximum Tubule Pixel Intensity")  + 
+    theme(axis.text=element_text(size=10),
+          axis.title=element_text(size=12), 
+          plot.title = element_text(size = 15, face="bold"), 
+          axis.text.x = element_text(angle = 60, vjust = 0.6))
 
 dev.new()
 ggarrange(a, b, c, ncol = 3, nrow = 1, labels = c("A", "B", "C"))
@@ -143,22 +497,46 @@ ptn3 <- read.csv("~/Desktop/Image_Analysis/Z_output/Measurements.csv")
 ptn3$adivp <- ptn3$Area / ptn3$Perim.
 
 
-
-
 #### Size: 
 area_df <- data.frame(names = c('CMJ030', 'PTN1', 'PTN2', 'PTN3'), 
                       values = c(mean(cmj030$Area), mean(ptn1$Area), mean(ptn2$Area), mean(ptn3$Area)))
-
 t.test(cmj030$Area, ptn1$Area, alternative = "two.sided")
 t.test(cmj030$Area, ptn2$Area, alternative = "two.sided")
 t.test(cmj030$Area, ptn3$Area, alternative = "two.sided")  ### Significant!
 
+# Old Plot: 
 a <- ggplot(area_df, aes(x = names, y = values)) +
     geom_bar(stat = "identity") + 
     labs(y = "Area (nm^2)", x = " ", title = "Average Tubule Area (nm^2)")  + 
     theme(axis.text.x = element_text(angle = 60, vjust = 0.6)) +
     geom_signif(comparisons=list(c("CMJ030", "PTN3")), annotations="**",
                 y_position = 80000, tip_length = 0, vjust=0.4)  
+
+# Used Plot: 
+tempdf <- data.frame(PTN3 = ptn3$Area)
+tempdf$CMJ030 <- c(cmj030$Area, rep(NA, nrow(tempdf)-length(cmj030$Area)))     
+tempdf$PTN1 <- c(ptn1$Area, rep(NA, nrow(tempdf)-length(ptn1$Area)))     
+tempdf$PTN2 <- c(ptn2$Area, rep(NA, nrow(tempdf)-length(ptn2$Area)))     
+new_area <- pivot_longer(tempdf, cols = c("PTN3","PTN2","PTN1","CMJ030"),  names_to= "Identity", values_to="Area")
+d <- ggplot(data = new_area, aes(x = Identity, y = log(Area))) + 
+    geom_boxplot() + 
+    geom_signif(comparisons=list(c("CMJ030", "PTN3")), annotations="**",
+                y_position = 14, tip_length = 0, vjust=0.4, size=1)  + 
+    labs(y = "Log[Area (nm^2)]", x = " ", title = "Tubule Area") + 
+    theme(axis.text=element_text(size=10),
+          axis.title=element_text(size=12), 
+          plot.title = element_text(size = 15, face="bold")) + 
+    geom_jitter(shape=16, position=position_jitter(0.1), alpha = 0.25, color = "darkgreen") + 
+    geom_point(aes(x = area_df$names[1], y = log(area_df$values[1])), shape=20, size=5, color="red", fill="red") + 
+    geom_text(aes(x = area_df$names[1], y = log(area_df$values[1])), label = round(area_df$values[1], 0), color = "red", vjust = 0, nudge_y = 0.2) + 
+    geom_point(aes(x = area_df$names[2], y = log(area_df$values[2])), shape=20, size=5, color="red", fill="red") + 
+    geom_text(aes(x = area_df$names[2], y = log(area_df$values[2])), label = round(area_df$values[2], 0), color = "red", vjust = 0, nudge_y = 0.2) + 
+    geom_point(aes(x = area_df$names[3], y = log(area_df$values[3])), shape=20, size=5, color="red", fill="red") + 
+    geom_text(aes(x = area_df$names[3], y = log(area_df$values[3])), label = round(area_df$values[3], 0), color = "red", vjust = 0, nudge_y = 0.2) + 
+    geom_point(aes(x = area_df$names[4], y = log(area_df$values[4])), shape=20, size=5, color="red", fill="red") + 
+    geom_text(aes(x = area_df$names[4], y = log(area_df$values[4])), label = round(area_df$values[4], 0), color = "red", vjust = 0, nudge_y = 0.2) 
+    
+
 
 
 perim_df <- data.frame(names = c('CMJ030', 'PTN1', 'PTN2', 'PTN3'), 
@@ -167,10 +545,34 @@ t.test(cmj030$Perim., ptn1$Perim., alternative = "two.sided")
 t.test(cmj030$Perim., ptn2$Perim., alternative = "two.sided")
 t.test(cmj030$Perim., ptn3$Perim., alternative = "two.sided")
 
+# Old Plot: 
 b <- ggplot(perim_df, aes(x = names, y = values)) +
     geom_bar(stat = "identity") + 
     labs(y = "Perimeter (nm)", x = " ", title = "Average Tubule Perimeter (nm)")  + 
     theme(axis.text.x = element_text(angle = 60, vjust = 0.6)) 
+
+#Used Plot: 
+tempdf <- data.frame(PTN3 = ptn3$Perim.)
+tempdf$CMJ030 <- c(cmj030$Perim., rep(NA, nrow(tempdf)-length(cmj030$Perim.)))     
+tempdf$PTN1 <- c(ptn1$Perim., rep(NA, nrow(tempdf)-length(ptn1$Perim.)))     
+tempdf$PTN2 <- c(ptn2$Perim., rep(NA, nrow(tempdf)-length(ptn2$Perim.)))     
+new_perim <- pivot_longer(tempdf, cols = c("PTN3","PTN2","PTN1","CMJ030"),  names_to= "Identity", values_to="Perim")
+e <- ggplot(data = new_perim, aes(x = Identity, y = log(Perim))) + 
+    geom_boxplot() + 
+    labs(y = "log[Perimeter (nm)]", x = " ", title = "Tubule Perimeter") + 
+    theme(axis.text=element_text(size=10),
+          axis.title=element_text(size=12), 
+          plot.title = element_text(size = 15, face="bold")) + 
+    geom_jitter(shape=16, position=position_jitter(0.1), alpha = 0.25, color = "darkgreen") + 
+    geom_point(aes(x = perim_df$names[1], y = log(perim_df$values[1])), shape=20, size=5, color="red", fill="red") + 
+    geom_text(aes(x = perim_df$names[1], y = log(perim_df$values[1])), label = round(perim_df$values[1], 0), color = "red", vjust = 0, nudge_y = 0.2) + 
+    geom_point(aes(x = perim_df$names[2], y = log(perim_df$values[2])), shape=20, size=5, color="red", fill="red") + 
+    geom_text(aes(x = perim_df$names[2], y = log(perim_df$values[2])), label = round(perim_df$values[2], 0), color = "red", vjust = 0, nudge_y = 0.2) + 
+    geom_point(aes(x = perim_df$names[3], y = log(perim_df$values[3])), shape=20, size=5, color="red", fill="red") + 
+    geom_text(aes(x = perim_df$names[3], y = log(perim_df$values[3])), label = round(perim_df$values[3], 0), color = "red", vjust = 0, nudge_y = 0.2) + 
+    geom_point(aes(x = perim_df$names[4], y = log(perim_df$values[4])), shape=20, size=5, color="red", fill="red") + 
+    geom_text(aes(x = perim_df$names[4], y = log(perim_df$values[4])), label = round(perim_df$values[4], 0), color = "red", vjust = 0, nudge_y = 0.2) 
+
 
 
 area_dvd_perim_df <- data.frame(names = c('CMJ030', 'PTN1', 'PTN2', 'PTN3'), 
@@ -180,6 +582,7 @@ t.test(cmj030$adivp, ptn1$adivp, alternative = "two.sided")
 t.test(cmj030$adivp, ptn2$adivp, alternative = "two.sided")
 t.test(cmj030$adivp, ptn3$adivp, alternative = "two.sided")
 
+# Old Plot 
 c <- ggplot(area_dvd_perim_df, aes(x = names, y = values)) +
     geom_bar(stat = "identity") + 
     labs(y = "Area / Perimeter (nm)", x = " ", title = "Average Tubule Area/Perimeter Ratio")  + 
@@ -189,8 +592,38 @@ c <- ggplot(area_dvd_perim_df, aes(x = names, y = values)) +
     geom_signif(comparisons=list(c("CMJ030", "PTN3")), annotations="***",
                 y_position = 36, tip_length = 0, vjust=0.4)  
 
+#Used Plot: 
+tempdf <- data.frame(PTN3 = ptn3$adivp)
+tempdf$CMJ030 <- c(cmj030$adivp, rep(NA, nrow(tempdf)-length(cmj030$adivp)))     
+tempdf$PTN1 <- c(ptn1$adivp, rep(NA, nrow(tempdf)-length(ptn1$adivp)))     
+tempdf$PTN2 <- c(ptn2$adivp, rep(NA, nrow(tempdf)-length(ptn2$adivp)))     
+new_ratio <- pivot_longer(tempdf, cols = c("PTN3","PTN2","PTN1","CMJ030"),  names_to= "Identity", values_to="Ratio")
+f <- ggplot(data = new_ratio, aes(x = Identity, y = log(Ratio))) + 
+    geom_boxplot() + 
+    labs(y = "log[Area / Perimeter (nm)]", x = " ", title = "Tubule Area/Perimeter Ratio") + 
+    theme(axis.text=element_text(size=10),
+          axis.title=element_text(size=12), 
+          plot.title = element_text(size = 15, face="bold")) + 
+    geom_signif(comparisons=list(c("CMJ030", "PTN2")), annotations="***",
+                y_position = 5, tip_length = 0, vjust=0.4)  +
+    geom_signif(comparisons=list(c("CMJ030", "PTN3")), annotations="***",
+                y_position = 5.1, tip_length = 0, vjust=0.4) + 
+    geom_jitter(shape=16, position=position_jitter(0.1), alpha = 0.25, color = "darkgreen") + 
+    geom_point(aes(x = area_dvd_perim_df$names[1], y = log(area_dvd_perim_df$values[1])), shape=20, size=5, color="red", fill="red") + 
+    geom_text(aes(x = area_dvd_perim_df$names[1], y = log(area_dvd_perim_df$values[1])), label = round(area_dvd_perim_df$values[1], 0), color = "red", vjust = 0, nudge_y = 0.2) + 
+    geom_point(aes(x = area_dvd_perim_df$names[2], y = log(area_dvd_perim_df$values[2])), shape=20, size=5, color="red", fill="red") + 
+    geom_text(aes(x = area_dvd_perim_df$names[2], y = log(area_dvd_perim_df$values[2])), label = round(area_dvd_perim_df$values[2], 0), color = "red", vjust = 0, nudge_y = 0.2) + 
+    geom_point(aes(x = area_dvd_perim_df$names[3], y = log(area_dvd_perim_df$values[3])), shape=20, size=5, color="red", fill="red") + 
+    geom_text(aes(x = area_dvd_perim_df$names[3], y = log(area_dvd_perim_df$values[3])), label = round(area_dvd_perim_df$values[3], 0), color = "red", vjust = 0, nudge_y = 0.2) + 
+    geom_point(aes(x = area_dvd_perim_df$names[4], y = log(area_dvd_perim_df$values[4])), shape=20, size=5, color="red", fill="red") + 
+    geom_text(aes(x = area_dvd_perim_df$names[4], y = log(area_dvd_perim_df$values[4])), label = round(area_dvd_perim_df$values[4], 0), color = "red", vjust = 0, nudge_y = 0.2) 
+
+
 dev.new()
+# Old: 
 ggarrange(a, b, c, ncol = 3, nrow = 1, labels = c("A", "B", "C"))
+# New: 
+ggarrange(d, e, f, ncol = 3, nrow = 1, labels = c("A", "B", "C"))
 
 
 
@@ -203,12 +636,38 @@ t.test(cmj030$Round, ptn1$Round, alternative = "two.sided")
 t.test(cmj030$Round, ptn2$Round, alternative = "two.sided")
 t.test(cmj030$Round, ptn3$Round, alternative = "two.sided") 
 
+# Old: 
 a <- ggplot(round_df, aes(x = names, y = values)) +
     geom_bar(stat = "identity") + 
     labs(y = "Roundness (0-1)", x = " ", title = "Average Tubule Roundness")  + 
     theme(axis.text.x = element_text(angle = 60, vjust = 0.6)) +
     geom_signif(comparisons=list(c("CMJ030", "PTN3")), annotations="*",
                 y_position = 0.75, tip_length = 0, vjust=0.4)  
+
+# Used: 
+tempdf <- data.frame(PTN3 = ptn3$Round)
+tempdf$CMJ030 <- c(cmj030$Round, rep(NA, nrow(tempdf)-length(cmj030$Round)))     
+tempdf$PTN1 <- c(ptn1$Round, rep(NA, nrow(tempdf)-length(ptn1$Round)))     
+tempdf$PTN2 <- c(ptn2$Round, rep(NA, nrow(tempdf)-length(ptn2$Round)))     
+new_round <- pivot_longer(tempdf, cols = c("PTN3","PTN2","PTN1","CMJ030"),  names_to= "Identity", values_to="Round")
+d <- ggplot(data = new_round, aes(x = Identity, y = Round)) + 
+    geom_boxplot() + 
+    labs(y = "Roundness (0-1)", x = " ", title = "Tubule Roundness")  + 
+    theme(axis.text=element_text(size=10),
+          axis.title=element_text(size=12), 
+          plot.title = element_text(size = 15, face="bold")) + 
+    geom_signif(comparisons=list(c("CMJ030", "PTN3")), annotations="*",
+                y_position = 1.05, tip_length = 0, vjust=0.4) + 
+    geom_jitter(shape=16, position=position_jitter(0.1), alpha = 0.25, color = "darkgreen") + 
+    geom_point(aes(x = round_df$names[1], y = (round_df$values[1])), shape=20, size=5, color="red", fill="red") + 
+    geom_text(aes(x = round_df$names[1], y = (round_df$values[1])), label = round(round_df$values[1], 2), color = "red", vjust = 0, nudge_y = 0.05) + 
+    geom_point(aes(x = round_df$names[2], y = (round_df$values[2])), shape=20, size=5, color="red", fill="red") + 
+    geom_text(aes(x = round_df$names[2], y = (round_df$values[2])), label = round(round_df$values[2], 2), color = "red", vjust = 0, nudge_y = 0.05) + 
+    geom_point(aes(x = round_df$names[3], y = (round_df$values[3])), shape=20, size=5, color="red", fill="red") + 
+    geom_text(aes(x = round_df$names[3], y = (round_df$values[3])), label = round(round_df$values[3], 2), color = "red", vjust = 0, nudge_y = 0.05) + 
+    geom_point(aes(x = round_df$names[4], y = (round_df$values[4])), shape=20, size=5, color="red", fill="red") + 
+    geom_text(aes(x = round_df$names[4], y = (round_df$values[4])), label = round(round_df$values[4], 2), color = "red", vjust = 0, nudge_y = 0.05) 
+
 
 
 solid_df <- data.frame(names = c('CMJ030', 'PTN1', 'PTN2', 'PTN3'), 
@@ -217,10 +676,35 @@ t.test(cmj030$Solidity, ptn1$Solidity, alternative = "two.sided")
 t.test(cmj030$Solidity, ptn2$Solidity, alternative = "two.sided")
 t.test(cmj030$Solidity, ptn3$Solidity, alternative = "two.sided")
 
+# Old: 
 b <- ggplot(solid_df, aes(x = names, y = values)) +
     geom_bar(stat = "identity") + 
     labs(y = "Solidity (0-1)", x = " ", title = "Average Tubule Solidity")  + 
     theme(axis.text.x = element_text(angle = 60, vjust = 0.6)) 
+
+
+# Used: 
+tempdf <- data.frame(PTN3 = ptn3$Solidity)
+tempdf$CMJ030 <- c(cmj030$Solidity, rep(NA, nrow(tempdf)-length(cmj030$Solidity)))     
+tempdf$PTN1 <- c(ptn1$Solidity, rep(NA, nrow(tempdf)-length(ptn1$Solidity)))     
+tempdf$PTN2 <- c(ptn2$Solidity, rep(NA, nrow(tempdf)-length(ptn2$Solidity)))     
+new_round <- pivot_longer(tempdf, cols = c("PTN3","PTN2","PTN1","CMJ030"),  names_to= "Identity", values_to="Solidity")
+e <- ggplot(data = new_round, aes(x = Identity, y = Solidity)) + 
+    geom_boxplot() + 
+    labs(y = "Solidity (0-1)", x = " ", title = "Tubule Solidity")  + 
+    theme(axis.text=element_text(size=10),
+          axis.title=element_text(size=12), 
+          plot.title = element_text(size = 15, face="bold")) + 
+    geom_jitter(shape=16, position=position_jitter(0.1), alpha = 0.25, color = "darkgreen") + 
+    geom_point(aes(x = solid_df$names[1], y = (solid_df$values[1])), shape=20, size=5, color="red", fill="red") + 
+    geom_text(aes(x = solid_df$names[1], y = (solid_df$values[1])), label = round(solid_df$values[1], 2), color = "red", vjust = 0, nudge_y = 0.05) + 
+    geom_point(aes(x = solid_df$names[2], y = (solid_df$values[2])), shape=20, size=5, color="red", fill="red") + 
+    geom_text(aes(x = solid_df$names[2], y = (solid_df$values[2])), label = round(solid_df$values[2], 2), color = "red", vjust = 0, nudge_y = 0.05) + 
+    geom_point(aes(x = solid_df$names[3], y = (solid_df$values[3])), shape=20, size=5, color="red", fill="red") + 
+    geom_text(aes(x = solid_df$names[3], y = (solid_df$values[3])), label = round(solid_df$values[3], 2), color = "red", vjust = 0, nudge_y = 0.05) + 
+    geom_point(aes(x = solid_df$names[4], y = (solid_df$values[4])), shape=20, size=5, color="red", fill="red") + 
+    geom_text(aes(x = solid_df$names[4], y = (solid_df$values[4])), label = round(solid_df$values[4], 2), color = "red", vjust = 0, nudge_y = 0.05) 
+
 
 
 circ_df <- data.frame(names = c('CMJ030', 'PTN1', 'PTN2', 'PTN3'), 
@@ -230,14 +714,40 @@ t.test(cmj030$Circ., ptn1$Circ., alternative = "two.sided")
 t.test(cmj030$Circ., ptn2$Circ., alternative = "two.sided")
 t.test(cmj030$Circ., ptn3$Circ., alternative = "two.sided")
 
+# Old: 
 c <- ggplot(circ_df, aes(x = names, y = values)) +
     geom_bar(stat = "identity") + 
     labs(y = "Circularity (0-1)", x = " ", title = "Average Tubule Circularity")  + 
     theme(axis.text.x = element_text(angle = 60, vjust = 0.6)) 
 
-dev.new()
-ggarrange(a, b, c, ncol = 3, nrow = 1, labels = c("A", "B", "C"))
+# Used: 
+tempdf <- data.frame(PTN3 = ptn3$Circ.)
+tempdf$CMJ030 <- c(cmj030$Circ., rep(NA, nrow(tempdf)-length(cmj030$Circ.)))     
+tempdf$PTN1 <- c(ptn1$Circ., rep(NA, nrow(tempdf)-length(ptn1$Circ.)))     
+tempdf$PTN2 <- c(ptn2$Circ., rep(NA, nrow(tempdf)-length(ptn2$Circ.)))     
+new_circ <- pivot_longer(tempdf, cols = c("PTN3","PTN2","PTN1","CMJ030"),  names_to= "Identity", values_to="Circ")
+f <- ggplot(data = new_circ, aes(x = Identity, y = Circ)) + 
+    geom_boxplot() + 
+    labs(y = "Circularity (0-1)", x = " ", title = "Tubule Circularity")  + 
+    theme(axis.text=element_text(size=10),
+          axis.title=element_text(size=12), 
+          plot.title = element_text(size = 15, face="bold")) + 
+    geom_jitter(shape=16, position=position_jitter(0.1), alpha = 0.25, color = "darkgreen") + 
+    geom_point(aes(x = circ_df$names[1], y = (circ_df$values[1])), shape=20, size=5, color="red", fill="red") + 
+    geom_text(aes(x = circ_df$names[1], y = (circ_df$values[1])), label = round(circ_df$values[1], 2), color = "red", vjust = 0, nudge_y = 0.05) + 
+    geom_point(aes(x = circ_df$names[2], y = (circ_df$values[2])), shape=20, size=5, color="red", fill="red") + 
+    geom_text(aes(x = circ_df$names[2], y = (circ_df$values[2])), label = round(circ_df$values[2], 2), color = "red", vjust = 0, nudge_y = 0.05) + 
+    geom_point(aes(x = circ_df$names[3], y = (circ_df$values[3])), shape=20, size=5, color="red", fill="red") + 
+    geom_text(aes(x = circ_df$names[3], y = (circ_df$values[3])), label = round(circ_df$values[3], 2), color = "red", vjust = 0, nudge_y = 0.05) + 
+    geom_point(aes(x = circ_df$names[4], y = (circ_df$values[4])), shape=20, size=5, color="red", fill="red") + 
+    geom_text(aes(x = circ_df$names[4], y = (circ_df$values[4])), label = round(circ_df$values[4], 2), color = "red", vjust = 0, nudge_y = 0.05) 
 
+
+dev.new()
+# Old: 
+ggarrange(a, b, c, ncol = 3, nrow = 1, labels = c("A", "B", "C"))
+# New: 
+ggarrange(d, e, f, ncol = 3, nrow = 1, labels = c("A", "B", "C"))
 
 
 
@@ -252,8 +762,11 @@ df %>% slice(4, 1, 2, 5, 3, 6)
 stacked_df <- cbind(df[3], stack(df[1:2])) 
 ggplot(stacked_df, aes(x = labels, y = values, fill = ind)) +
     geom_bar(stat = "identity", position = position_dodge(width=0.5)) + 
-    labs(y = "Spectrofluorometer Intensity", x = " ", title = "Spectrofluorometer Proof Of Concept")  + 
-    theme(axis.text.x = element_text(angle = 60, vjust = 0.6))
+    labs(y = "Fluorescent Intensity (AU)", x = " ", title = "Comparing Fluorescence in Lysates \n  and Pulldown Samples")  + 
+    theme(axis.text=element_text(size=10),
+          axis.text.x = element_text(angle = 60, vjust = 0.6),
+          axis.title=element_text(size=15), 
+          plot.title = element_text(size = 20, face="bold")) 
 
 
 
@@ -298,7 +811,19 @@ z <- ggplot(df_cre05, aes(x = 1:length(chlorophyll))) +
         geom_label_repel(aes(label = labels, 
                              y = log(chlorophyll), 
                              size = NULL, color = NULL), nudge_y = 0.25) +  
-        labs(y = "Log of Chlorophyll and Venus Expression", title = "Cre05")
+        labs(y = "Log(Fluorescence)", title = "Cre05") + 
+    ylim(c(0,10))
+    
+
+ggplot(df_cre05, aes(x = 1:length(chlorophyll))) + 
+    geom_line(aes(y = log(chlorophyll)),color = "Darkgreen", size = 1)+
+    geom_line(aes(y = log(venus)), color = "Blue",  size = 1) + 
+    geom_label_repel(aes(label = labels, 
+                         y = log(chlorophyll), 
+                         size = NULL, color = NULL), nudge_y = 0.25) +  
+    labs(y = "Log of Chlorophyll and Venus Expression", title = "Cre05") + 
+    scale_x_discrete(aes(labels=labels))
+    
 
 dev.new()
 plot_grid(a, z, labels = "AUTO")
@@ -341,7 +866,8 @@ a <- ggplot(df_cmj030, aes(x = 1:length(chlorophyll))) +
     geom_label_repel(aes(label = labels, 
                          y = log(chlorophyll), 
                          size = NULL, color = NULL), nudge_y = 0.25)  + 
-    labs(y = "Log of Chlorophyll and Venus Expression", title = "CMJ030")
+    labs(y = "Log(Fluorescence)", title = "CMJ030") + 
+    ylim(c(0,10))
 
 
 
@@ -355,7 +881,8 @@ b <- ggplot(df_cre01, aes(x = 1:length(chlorophyll))) +
     geom_label_repel(aes(label = labels, 
                          y = log(chlorophyll), 
                          size = NULL, color = NULL), nudge_y = 0.25) +  
-    labs(y = "Log of Chlorophyll and Venus Expression", title = "Cre01")
+    labs(y = "Log(Fluorescence)", title = "Cre01") + 
+    ylim(c(0,10))
 
 
 c <- ggplot(df_rbmp1, aes(x = 1:length(chlorophyll))) + 
@@ -367,7 +894,8 @@ c <- ggplot(df_rbmp1, aes(x = 1:length(chlorophyll))) +
     geom_label_repel(aes(label = labels, 
                          y = log(chlorophyll), 
                          size = NULL, color = NULL), nudge_y = 0.25) +  
-    labs(y = "Log of Chlorophyll and Venus Expression", title = "RBMP1")
+    labs(y = "Log(Fluorescence)", title = "RBMP1") + 
+    ylim(c(0,10))
 
 dev.new()
 ggarrange(a, b, c, z, ncol = 2, nrow = 2, labels = c("A", "B", "C", "D"))
@@ -418,7 +946,8 @@ a <- ggplot(df_cmj030, aes(x = 1:length(chlorophyll))) +
     theme(axis.title.x=element_blank())  + 
     theme(axis.text.x=element_blank())+ 
     # geom_label_repel(aes(label = labels, y = log(chlorophyll), size = NULL, color = NULL), nudge_y = 0.25) +  
-    labs(y = "Log(Expression)", title = "Sonication 1: CMJ030")
+    labs(y = "Log(Fluorescence)", title = "Sonication 1: CMJ030") + 
+    ylim(c(0,10))
 
 
 
@@ -430,7 +959,9 @@ b <- ggplot(df_cre01, aes(x = 1:length(chlorophyll))) +
     theme(axis.title.x=element_blank())  + 
     theme(axis.text.x=element_blank())+ 
     # geom_label_repel(aes(label = labels, y = log(chlorophyll), size = NULL, color = NULL), nudge_y = 0.25) +  
-    labs(y = "Log(Expression)", title = "Sonication 1: Cre01")
+    labs(y = "Log(Fluorescence)", title = "Sonication 1: Cre01") + 
+    ylim(c(0,10))
+
 
 
 # Sonication 2: 
@@ -453,7 +984,8 @@ c <- ggplot(df_cmj030, aes(x = 1:length(chlorophyll))) +
     theme(axis.title.x=element_blank())  + 
     theme(axis.text.x=element_blank())+ 
     # geom_label_repel(aes(label = labels, y = log(chlorophyll), size = NULL, color = NULL), nudge_y = 0.25) +  
-    labs(y = "Log(Expression)", title = "Sonication 2: CMJ030")
+    labs(y = "Log(Fluorescence)", title = "Sonication 2: CMJ030") + 
+    ylim(c(0,10))
 
 
 
@@ -465,7 +997,8 @@ d <- ggplot(df_cre01, aes(x = 1:length(chlorophyll))) +
     theme(axis.title.x=element_blank())  + 
     theme(axis.text.x=element_blank())+ 
     # geom_label_repel(aes(label = labels, y = log(chlorophyll), size = NULL, color = NULL), nudge_y = 0.25) +  
-    labs(y = "Log(Expression)", title = "Sonication 2: Cre01")
+    labs(y = "Log(Fluorescence)", title = "Sonication 2: Cre01")+ 
+    ylim(c(0,10))
 
 
 # Sonication 3: 
@@ -488,7 +1021,8 @@ e <- ggplot(df_cmj030, aes(x = 1:length(chlorophyll))) +
     theme(axis.title.x=element_blank())  + 
     theme(axis.text.x=element_blank())+ 
     # geom_label_repel(aes(label = labels, y = log(chlorophyll), size = NULL, color = NULL), nudge_y = 0.25) +  
-    labs(y = "Log(Expression)", title = "Sonication 3: CMJ030")
+    labs(y = "Log(Fluorescence)", title = "Sonication 3: CMJ030")+ 
+    ylim(c(0,10))
 
 
 f <- ggplot(df_cre01, aes(x = 1:length(chlorophyll))) + 
@@ -498,7 +1032,8 @@ f <- ggplot(df_cre01, aes(x = 1:length(chlorophyll))) +
     theme(axis.title.x=element_blank())  + 
     theme(axis.text.x=element_blank())+ 
     # geom_label_repel(aes(label = labels, y = log(chlorophyll), size = NULL, color = NULL), nudge_y = 0.25) +  
-    labs(y = "Log(Expression)", title = "Sonication 3: Cre01")
+    labs(y = "Log(Fluorescence)", title = "Sonication 3: Cre01")+ 
+    ylim(c(0,10))
 
 # Sonication 4: 
 df_cmj030 <- df %>% slice(4, 12, 26, 42)
@@ -520,7 +1055,8 @@ g <- ggplot(df_cmj030, aes(x = 1:length(chlorophyll))) +
     theme(axis.title.x=element_blank())  + 
     theme(axis.text.x=element_blank())+ 
     # geom_label_repel(aes(label = labels, y = log(chlorophyll), size = NULL, color = NULL), nudge_y = 0.25) +  
-    labs(y = "Log(Expression)", title = "Sonication 4: CMJ030")
+    labs(y = "Log(Fluorescence)", title = "Sonication 4: CMJ030")+ 
+    ylim(c(0,10))
 
 
 h <- ggplot(df_cre01, aes(x = 1:length(chlorophyll))) + 
@@ -530,11 +1066,12 @@ h <- ggplot(df_cre01, aes(x = 1:length(chlorophyll))) +
     theme(axis.title.x=element_blank())  + 
     theme(axis.text.x=element_blank())+ 
     # geom_label_repel(aes(label = labels, y = log(chlorophyll), size = NULL, color = NULL), nudge_y = 0.25) +  
-    labs(y = "Log(Expression)", title = "Sonication 4: Cre01")
+    labs(y = "Log(Fluorescence)", title = "Sonication 4: Cre01")+ 
+    ylim(c(0,10))
 
 
 dev.new()
-ggarrange(a, b, c, d, e, f, g, h, ncol = 4, nrow = 2, labels = c("A", "B", "C", "D", "E", "F", "G", "H"))
+ggarrange(a, c, e, g, b, d, f, h, ncol = 4, nrow = 2, labels = c("A", "C", "E", "G", "B", "D", "F", "H"))
 
 
 
@@ -580,7 +1117,8 @@ a <- ggplot(df_cmj030, aes(x = 1:length(chlorophyll))) +
     theme(axis.title.x=element_blank())  + 
     theme(axis.text.x=element_blank())+ 
     # geom_label_repel(aes(label = labels, y = log(chlorophyll), size = NULL, color = NULL), nudge_y = 0.25) +  
-    labs(y = "Log(Expression)", title = "Sonication 5: CMJ030")
+    labs(y = "Log(Fluorescence)", title = "Sonication 5: CMJ030") + 
+    ylim(c(0,10))
 
 
 b <- ggplot(df_cre01, aes(x = 1:length(chlorophyll))) + 
@@ -590,7 +1128,8 @@ b <- ggplot(df_cre01, aes(x = 1:length(chlorophyll))) +
     theme(axis.title.x=element_blank())  + 
     theme(axis.text.x=element_blank())+ 
     # geom_label_repel(aes(label = labels, y = log(chlorophyll), size = NULL, color = NULL), nudge_y = 0.25) +  
-    labs(y = "Log(Expression)", title = "Sonication 5: Cre01")
+    labs(y = "Log(Fluorescence)", title = "Sonication 5: Cre01")+ 
+    ylim(c(0,10))
 
 c <- ggplot(df_rbmp1, aes(x = 1:length(chlorophyll))) + 
     geom_line(aes(y = log(chlorophyll)),color = "Darkgreen", size = 1)+
@@ -599,7 +1138,8 @@ c <- ggplot(df_rbmp1, aes(x = 1:length(chlorophyll))) +
     theme(axis.title.x=element_blank())  + 
     theme(axis.text.x=element_blank())+ 
     # geom_label_repel(aes(label = labels, y = log(chlorophyll), size = NULL, color = NULL), nudge_y = 0.25) +  
-    labs(y = "Log(Expression)", title = "Sonication 5: RBMP1")
+    labs(y = "Log(Fluorescence)", title = "Sonication 5: RBMP1")+ 
+    ylim(c(0,10))
 
 
 # Sonication trial 2
@@ -625,7 +1165,8 @@ d <- ggplot(df_cmj030, aes(x = 1:length(chlorophyll))) +
     theme(axis.title.x=element_blank())  + 
     theme(axis.text.x=element_blank())+ 
     # geom_label_repel(aes(label = labels, y = log(chlorophyll), size = NULL, color = NULL), nudge_y = 0.25) +  
-    labs(y = "Log(Expression)", title = "Sonication 2: CMJ030")
+    labs(y = "Log(Fluorescence)", title = "Sonication 2: CMJ030")+ 
+    ylim(c(0,10))
 
 
 e <- ggplot(df_cre01, aes(x = 1:length(chlorophyll))) + 
@@ -635,7 +1176,8 @@ e <- ggplot(df_cre01, aes(x = 1:length(chlorophyll))) +
     theme(axis.title.x=element_blank())  + 
     theme(axis.text.x=element_blank())+ 
     # geom_label_repel(aes(label = labels, y = log(chlorophyll), size = NULL, color = NULL), nudge_y = 0.25) +  
-    labs(y = "Log(Expression)", title = "Sonication 2: Cre01")
+    labs(y = "Log(Fluorescence)", title = "Sonication 2: Cre01")+ 
+    ylim(c(0,10))
 
 f <- ggplot(df_rbmp1, aes(x = 1:length(chlorophyll))) + 
     geom_line(aes(y = log(chlorophyll)),color = "Darkgreen", size = 1)+
@@ -644,7 +1186,8 @@ f <- ggplot(df_rbmp1, aes(x = 1:length(chlorophyll))) +
     theme(axis.title.x=element_blank())  + 
     theme(axis.text.x=element_blank())+ 
     # geom_label_repel(aes(label = labels, y = log(chlorophyll), size = NULL, color = NULL), nudge_y = 0.25) +  
-    labs(y = "Log(Expression)", title = "Sonication 2: RBMP1")
+    labs(y = "Log(Fluorescence)", title = "Sonication 2: RBMP1")+ 
+    ylim(c(0,10))
 
 
 # Sonication trial 3
@@ -670,7 +1213,8 @@ g <- ggplot(df_cmj030, aes(x = 1:length(chlorophyll))) +
     theme(axis.title.x=element_blank())  + 
     theme(axis.text.x=element_blank())+ 
     # geom_label_repel(aes(label = labels, y = log(chlorophyll), size = NULL, color = NULL), nudge_y = 0.25) +  
-    labs(y = "Log(Expression)", title = "Sonication 6: CMJ030")
+    labs(y = "Log(Fluorescence)", title = "Sonication 6: CMJ030")+ 
+    ylim(c(0,10))
 
 
 h <- ggplot(df_cre01, aes(x = 1:length(chlorophyll))) + 
@@ -680,7 +1224,8 @@ h <- ggplot(df_cre01, aes(x = 1:length(chlorophyll))) +
     theme(axis.title.x=element_blank())  + 
     theme(axis.text.x=element_blank())+ 
     # geom_label_repel(aes(label = labels, y = log(chlorophyll), size = NULL, color = NULL), nudge_y = 0.25) +  
-    labs(y = "Log(Expression)", title = "Sonication 6: Cre01")
+    labs(y = "Log(Fluorescence)", title = "Sonication 6: Cre01")+ 
+    ylim(c(0,10))
 
 i <- ggplot(df_rbmp1, aes(x = 1:length(chlorophyll))) + 
     geom_line(aes(y = log(chlorophyll)),color = "Darkgreen", size = 1)+
@@ -689,11 +1234,12 @@ i <- ggplot(df_rbmp1, aes(x = 1:length(chlorophyll))) +
     theme(axis.title.x=element_blank())  + 
     theme(axis.text.x=element_blank())+ 
     # geom_label_repel(aes(label = labels, y = log(chlorophyll), size = NULL, color = NULL), nudge_y = 0.25) +  
-    labs(y = "Log(Expression)", title = "Sonication 6: RBMP1")
+    labs(y = "Log(Fluorescence)", title = "Sonication 6: RBMP1")+ 
+    ylim(c(0,10))
 
 
 dev.new()
-ggarrange(a, b, c, d, e, f, g, h, i, ncol = 3, nrow = 3, labels = c("A", "B", "C", "D", "E", "F", "G", "H", "I"))
+ggarrange(a, d, g, b, e, h, c, f, i, ncol = 3, nrow = 3, labels = c("A", "D", "G", "B", "E", "H", "C", "F", "I"))
 
 
 
@@ -728,15 +1274,22 @@ for (i in c(1, 3, 5, 7)) {
     venus_ratio[j] = df_elution$venus[i + 1] / df_elution$venus[i]
     j = j + 1
 }
-df_ratios <- data.frame(chlorophyll = chlorophyll_ratio, venus = venus_ratio, FLAG_Buffer = c("CMJ030 Control", "40% FLAG","66% FLAG", "90% FLAG"))
+df_ratios <- data.frame(chlorophyll = chlorophyll_ratio, venus = venus_ratio, FLAG_Buffer = c("90% FLAG w/ \n CMJ030 Control", "40% FLAG","66% FLAG", "90% FLAG"))
 df_plot <- df_ratios %>% pivot_longer(cols = c(chlorophyll, venus))
 
 dev.new()
 ggplot(df_plot, aes(x = FLAG_Buffer, y = value, fill = name)) +
     geom_bar(stat = "identity", position = "dodge") + 
     scale_fill_manual(values=c("#336600", "#0000FF")) + 
-    labs(y = "Ratio of Expression in Eluate to Post-elution Beads", title = "Elution Optimization") +
-    theme(axis.text=element_text(size=12),axis.title=element_text(size=14,face="bold"), title = element_text(size = 18))
+    labs(y = "Eluate : Post-elution Beads Fluorescence Ratio", x = "Buffer Composition") +
+    theme(legend.position= 'right', 
+          legend.justification='left',
+          legend.direction='vertical', 
+          legend.title=element_blank(), 
+          axis.text=element_text(size=12),
+          axis.title=element_text(size=15), 
+          legend.text=element_text(size=15)) 
+   
 
 
 
@@ -793,7 +1346,8 @@ a <- ggplot(df_cmj030, aes(x = 1:length(chlorophyll))) +
     geom_label_repel(aes(label = labels, 
                          y = log(chlorophyll), 
                          size = NULL, color = NULL), nudge_y = 0.25)  + 
-    labs(y = "Log of Chlorophyll and Venus Expression", title = "CMJ030")
+    labs(y = "Log(Fluorescence)", title = "CMJ030") + 
+    ylim(c(0,10))
 
 
 
@@ -806,7 +1360,9 @@ b <- ggplot(df_cre05, aes(x = 1:length(chlorophyll))) +
     geom_label_repel(aes(label = labels, 
                          y = log(chlorophyll), 
                          size = NULL, color = NULL), nudge_y = 0.25) +  
-    labs(y = "Log of Chlorophyll and Venus Expression", title = "Cre05")
+    labs(y = "Log(Fluorescence)", title = "Cre05")+ 
+    ylim(c(0,10))
+
 
 dev.new()
 plot_grid(a, b, labels = c('B', 'C'))
@@ -833,7 +1389,9 @@ c <- ggplot(df_cmj030, aes(x = 1:length(chlorophyll))) +
     geom_label_repel(aes(label = labels, 
                          y = log(chlorophyll), 
                          size = NULL, color = NULL), nudge_y = 0.25)  + 
-    labs(y = "Log of Chlorophyll and Venus Expression", title = "CMJ030")
+    labs(y = "Log(Fluorescence)", title = "CMJ030") + 
+    ylim(c(0,10))
+
 
 
 
@@ -846,11 +1404,12 @@ d <- ggplot(df_cre05, aes(x = 1:length(chlorophyll))) +
     geom_label_repel(aes(label = labels, 
                          y = log(chlorophyll), 
                          size = NULL, color = NULL), nudge_y = 0.25) +  
-    labs(y = "Log of Chlorophyll and Venus Expression", title = "Cre05")
+    labs(y = "Log(Fluorescence)", title = "Cre05") + 
+    ylim(c(0,10))
+
 
 dev.new()
-plot_grid(a, b, c, d, labels = c('B','C','D','E'))
-
+plot_grid(a, c, b, d, labels = c("B", "D", "C", "E"))
 
 # Visualizing the other results from this trial 
 
@@ -943,7 +1502,9 @@ a <- ggplot(cre01, aes(x = 1:length(chlorophyll))) +
     theme(axis.ticks.x=element_blank())  + 
     theme(axis.title.x=element_blank())  + 
     theme(axis.text.x=element_blank())+ 
-    labs(y = "Log of Chlorophyll and Venus Expression", title = "Cre01 30k")
+    labs(y = "Log(Fluorescence)", title = "Cre01 30k") + 
+    ylim(c(0, 10)) 
+
 
 b <- ggplot(cre05, aes(x = 1:length(chlorophyll))) + 
     geom_line(aes(y = log(chlorophyll)),color = "Darkgreen", size = 1)+
@@ -951,7 +1512,8 @@ b <- ggplot(cre05, aes(x = 1:length(chlorophyll))) +
     theme(axis.ticks.x=element_blank())  + 
     theme(axis.title.x=element_blank())  + 
     theme(axis.text.x=element_blank())+ 
-    labs(y = "Log of Chlorophyll and Venus Expression", title = "Cre05 30k")
+    labs(y = "Log(Fluorescence)", title = "Cre05 30k") + 
+    ylim(c(0, 10)) 
 
 c <- ggplot(rbmp1, aes(x = 1:length(chlorophyll))) + 
     geom_line(aes(y = log(chlorophyll)),color = "Darkgreen", size = 1)+
@@ -959,7 +1521,8 @@ c <- ggplot(rbmp1, aes(x = 1:length(chlorophyll))) +
     theme(axis.ticks.x=element_blank())  + 
     theme(axis.title.x=element_blank())  + 
     theme(axis.text.x=element_blank())+ 
-    labs(y = "Log of Chlorophyll and Venus Expression", title = "RBMP1 30k")
+    labs(y = "Log(Fluorescence)", title = "RBMP1 30k")+ 
+    ylim(c(0, 10)) 
 
 d <- ggplot(rbmp2, aes(x = 1:length(chlorophyll))) + 
     geom_line(aes(y = log(chlorophyll)),color = "Darkgreen", size = 1)+
@@ -967,7 +1530,8 @@ d <- ggplot(rbmp2, aes(x = 1:length(chlorophyll))) +
     theme(axis.ticks.x=element_blank())  + 
     theme(axis.title.x=element_blank())  + 
     theme(axis.text.x=element_blank())+ 
-    labs(y = "Log of Chlorophyll and Venus Expression", title = "RBMP2 30k")
+    labs(y = "Log(Fluorescence)", title = "RBMP2 30k")+ 
+    ylim(c(0, 10)) 
 
 e <- ggplot(saga1, aes(x = 1:length(chlorophyll))) + 
     geom_line(aes(y = log(chlorophyll)),color = "Darkgreen", size = 1)+
@@ -975,7 +1539,8 @@ e <- ggplot(saga1, aes(x = 1:length(chlorophyll))) +
     theme(axis.ticks.x=element_blank())  + 
     theme(axis.title.x=element_blank())  + 
     theme(axis.text.x=element_blank())+ 
-    labs(y = "Log of Chlorophyll and Venus Expression", title = "SAGA1 30k")
+    labs(y = "Log(Fluorescence)", title = "SAGA1 30k")+ 
+    ylim(c(0, 10)) 
 
 dev.new()
 plot_grid(a, b, c, d, e, labels = "AUTO")
@@ -1000,7 +1565,8 @@ f <- ggplot(cre01, aes(x = 1:length(chlorophyll))) +
     theme(axis.ticks.x=element_blank())  + 
     theme(axis.title.x=element_blank())  + 
     theme(axis.text.x=element_blank())+ 
-    labs(y = "Log of Chlorophyll and Venus Expression", title = "Cre01 10K")
+    labs(y = "Log(Fluorescence)", title = "Cre01 10K")+ 
+    ylim(c(0, 10)) 
 
 g <- ggplot(rbmp1, aes(x = 1:length(chlorophyll))) + 
     geom_line(aes(y = log(chlorophyll)),color = "Darkgreen", size = 1)+
@@ -1008,7 +1574,8 @@ g <- ggplot(rbmp1, aes(x = 1:length(chlorophyll))) +
     theme(axis.ticks.x=element_blank())  + 
     theme(axis.title.x=element_blank())  + 
     theme(axis.text.x=element_blank())+ 
-    labs(y = "Log of Chlorophyll and Venus Expression", title = "RBMP1 10k")
+    labs(y = "Log(Fluorescence)", title = "RBMP1 10k")+ 
+    ylim(c(0, 10)) 
 
 dev.new()
 plot_grid(f, g, labels = "AUTO")
@@ -1037,7 +1604,7 @@ library(RColorBrewer)
 
 df <- data.frame(chlorophyll = c(2173, 27, 2239, 1504, 43, 1121, 7), 
                  venus = c(262, 445, 260, 348, 571, 122, 317), 
-                 labels = c('_Pre-Filtration', 'Flow-Through', '.Post-Filtration Product', '_Pre-Filtration', 'Flow-Through', '.Post-Filtration Product','Blank'))
+                 labels = c('Pre-Filtration', 'Flow-Through', 'Post-Filtration', 'Pre-Filtration', 'Flow-Through', 'Post-Filtration','Blank'))
 
 df$chlorophyll <- df$chlorophyll - df$chlorophyll[7]
 tenK <- df %>% slice(1, 2, 3) 
@@ -1046,14 +1613,24 @@ thirtyK <- df %>% slice(4, 5, 6)
 thirtyK$legend <- "30K"
 merged <- merge(x = tenK, y = thirtyK, all = T) %>% arrange((labels))
 merged$legend <- factor(merged$legend)
-b <- ggplot(merged, aes(x = labels, y = chlorophyll, fill = legend)) +
+merged$labels <- factor(merged$labels)
+
+b <- ggplot(merged, aes(x = legend, y = chlorophyll, fill = factor(labels, levels = rev(levels(factor(labels)))))) +
     geom_bar(stat = "identity", position = position_dodge(width=0.8)) + 
-    labs(y = "Chlorophyll Expression", x = " ", title = "Membrane Retention")  + 
+    labs(y = "Chlorophyll Fluorescence", x = " ", title = "Membrane Retention")  + 
     theme(axis.text.x = element_text(angle = 45, vjust = 0.6)) + 
-    scale_fill_brewer(palette = "Paired") +
+    scale_fill_brewer(palette = "Set1") +
+    theme_classic() + 
     theme(legend.position= 'top', 
           legend.justification='left',
-          legend.direction='horizontal')
+          legend.direction='horizontal', 
+          legend.title=element_blank(), 
+          axis.text=element_text(size=10),
+          axis.title=element_text(size=12), 
+          plot.title = element_text(size = 15, face="bold")) 
+
+
+
 
 # 1/24: Protein amounts:
 
@@ -1061,21 +1638,27 @@ df <- data.frame(ten = c(103.20, 9, 101.10),
                  ten_membranes = c(51, 67.30, 306), 
                  thirty = c(148, 108.90, 12.75),
                  thirty_membranes = c(79.88, 389.20, 266.80),
-                 labels = c("_Pre-Filtration", "Flow-Through", ".Post-Filtration Filtered Product"))
+                 labels = c("Pre-Filtration", "Flow-Through", "Post-Filtration"))
 df_long <- df %>% pivot_longer(cols = ten:thirty_membranes, names_to= "names", values_to= "values")
 df_long$names <- factor(df_long$names)
 df_long <- df_long %>% arrange(names, desc(labels))
 levels(df_long$names) <- list('10kDa' = 'ten', '10kDa + Membranes' = 'ten_membranes', '30kDa' ='thirty', '30kDa + Membranes' = "thirty_membranes")
+df$labels <- factor(df$labels)
 
-
-a <- ggplot(df_long, aes(x = names, y = values, fill = labels)) +
+a <- ggplot(df_long, aes(x = names, y = values, fill = factor(labels, levels = rev(levels(factor(labels)))))) +
     geom_bar(stat = "identity", position = position_dodge(width=0.8)) + 
     labs(y = "Protein Amount (ug)", x = " ", title = "FLAG Elimination Efficacy")  + 
-    scale_fill_brewer(palette = "Dark2") + 
-    theme(axis.text.x = element_text(angle = 0, vjust = 0.6)) +
-    theme(legend.position= 'bottom', 
+    scale_fill_brewer(palette = "Set1") + 
+    theme_classic() + 
+    theme(axis.text.x = element_text(angle = 25, vjust = 0.6)) +
+    theme(legend.position= 'top', 
           legend.justification='left',
-          legend.direction='horizontal')
+          legend.direction='horizontal', 
+          axis.text=element_text(size=10),
+          axis.title=element_text(size=12), 
+          plot.title = element_text(size = 15, face="bold"), 
+          legend.title=element_blank(), )
+
 
 dev.new() 
 plot_grid(a, b, labels = c("A","B"))
@@ -1104,3 +1687,34 @@ ggplot(data = data, aes(x = sample)) +
 
 
 
+######### Re-doing proteomic Analysis: 
+dat <- read_excel("~/Desktop/Jonikas Lab /Thesis Data/Keenan_Masterfile.xlsx", sheet = 5)
+x = dat$`Graph (controls)`
+y = dat$`Graph (RBMP)`
+
+smoothScatter(x=x, y=y, main = "Deeper Proteomic Data",
+              xlab = "Thylakoid Relative Abundance", ylab = "Tubule Relative Abundance", cex.main = 1.5, cex.axis = 1, 
+              cex.lab = 1, ylim=c(0,0.008), xlim = c(0, 0.008)) 
+abline(a=0, b=1, lwd = 2)
+par(new = T) 
+plot(x = dat$red_control, y = dat$red_rbmp, xlab = '', ylab = '',  col = 'red', ylim=c(0,0.008), xlim = c(0, 0.008), pch = 20, alpha = 0.5, cex = 0.5)
+
+
+#### Confocal Boxplots: 
+
+probe_data <- read.csv("~/Desktop/Jonikas Lab /Thesis Data/Confocal Readout/Results2.csv")
+water_data <- read.csv("~/Desktop/Jonikas Lab /Thesis Data/Confocal Readout/Results.csv")
+filtered_probe <- probe_data %>% filter(Area < quantile(probe_data$Area, 0.98)) %>% select(Area)
+filtered_water <- water_data %>% filter(Area < quantile(water_data$Area, 0.98)) %>% select(Area)
+
+data <- data.frame(area = c(filtered_probe$Area,filtered_water$Area), identity = c(rep("Sonication Method 2 + Half-Pull-down", times = length(filtered_probe$Area)), rep("Water Bath Sonication + Centrifugation", times = length(filtered_water$Area))))
+data$identity <- data$identity %>% factor()
+
+dev.new()
+boxplot(data$area ~ data$identity,
+        col='steelblue',
+        main='Membrane Fragment Size Distributions',
+        xlab='Experimental Condition',
+        ylab='Size of Membrane Fragments (nm^2)', 
+        cex.main = 2,
+        cex.axis = 1, cex.lab = 1) 
