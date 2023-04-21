@@ -15,3 +15,6 @@ Image Analysis Project 1:
   
   Machine Learning: 
   https://drive.google.com/drive/u/1/folders/1BF3K-83e85WRbJ4r7outCtY6weYqnwl1
+  
+  
+For other data, please contact Keenan Duggal @ keenand@princeton.edu 
